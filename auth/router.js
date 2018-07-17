@@ -3,6 +3,7 @@ const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
+const {User} = require('../users/models');
 
 const config = require('../config');
 const router = express.Router();
@@ -20,7 +21,10 @@ router.use(bodyParser.json());
 // The user provides a username and password to login
 router.post('/login', localAuth, (req, res) => {
   const authToken = createAuthToken(req.user.serialize());
-  res.json({authToken});
+  let gravatar;
+  User.find(req.user.username)
+    .then(user => gravatar = user.serialize().gravatar)
+  res.json({authToken, gravatar});
 });
 
 const jwtAuth = passport.authenticate('jwt', {session: false});
